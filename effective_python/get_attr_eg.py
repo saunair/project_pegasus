@@ -22,16 +22,20 @@ class Exam:
     writing_grade = Grade()
     science_grade = Grade()
     geo_grade = Grade()
-    def __init__(self):
-        self.test_grade = Grade()
+    def __init__(self, math, writing, geo, science):
+        self.math_grade = math
+        self.writing_grade = writing
+        self.science_grade = science
+        self.geo_grade = geo 
 
 
 if __name__ == "__main__":
-    example_exam = Exam()
-    example_exam.math_grade = 10
-    example_exam.writing_grade = 100
-    example_exam.science_grade = 12
-    # None of the validators work for the self.attributes!
-    print(example_exam.test_grade)
-    example_exam.test_grade = -2
-    # example_exam.geo_grade = -1
+    example_exam = Exam(
+        math=10,
+        writing=20,
+        geo=30,
+        science=50
+    )
+    example_exam.science_grade = 10
+    # None of the validators work for the self.attributes created after the 
+    example_exam.new_subject_grade = -200
