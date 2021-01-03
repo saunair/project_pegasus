@@ -42,6 +42,30 @@ def does_subset_exist_for_sum(num_list, sum_reqd):
     )
 
 
+def does_subset_exist_for_sum_from_power_sets(num_list, sum_reqd):
+    """Similar to the brute force solution, but we create all the subsets first and then check the sums
+    
+    Parameters
+    ----------
+    num_list : list
+    sum_reqd : int
+
+    Returns
+    -------
+    bool : True if the `sum_reqd` subset exists in `num_list` .
+    
+    """
+
+    from power_subsets import generate_power_sets
+    all_subsets = generate_power_sets(num_list)
+    all_sums = [sum(subset) for subset in all_subsets]
+    try:
+        all_sums.index(sum_reqd)
+    except ValueError:
+        return False
+    return True
+    
+
 
 test_list = [1, 10, 3, 4]
 assert (does_subset_exist_for_sum(test_list, 1))
@@ -52,3 +76,7 @@ test_list = [1, 2, 3, 4, 5]
 assert (does_subset_exist_for_sum(test_list, 10))
 assert (does_subset_exist_for_sum(test_list, 4))
 assert not (does_subset_exist_for_sum(test_list, 16))
+
+assert (does_subset_exist_for_sum_from_power_sets(test_list, 10))
+assert (does_subset_exist_for_sum_from_power_sets(test_list, 4))
+assert not (does_subset_exist_for_sum_from_power_sets(test_list, 16))
