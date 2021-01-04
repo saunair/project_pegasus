@@ -95,7 +95,7 @@ def does_subset_exist_for_sum_dp(num_list, sum_reqd):
     # Hence first row must remain all False.
     for i in range(numbers_in_set + 1):
         subset_sum_table[i][0] = True
-     
+
     # Filling the table from the sum of 0.
     # start the row num from 1 as we have inserted a 0 the in the beginning for an empty set
     # Start the column num from 1 as the first column corresponds to sum 0 which is already num_rows * [True]
@@ -138,10 +138,14 @@ assert (does_subset_exist_for_sum_dp(test_list, 37))
 assert (does_subset_exist_for_sum_dp(test_list, 38))
 assert not (does_subset_exist_for_sum_dp(test_list, 500))
 
-
 test_list = [1, 2, 3, 4, 5]
 assert (does_subset_exist_for_sum_dp(test_list, 10))
 assert (does_subset_exist_for_sum_dp(test_list, 0))
 assert not (does_subset_exist_for_sum_dp(test_list, 16))
 assert not (does_subset_exist_for_sum_dp(test_list, 999))
+
+test_list = []
+assert (does_subset_exist_for_sum_dp(test_list, 0))
+assert not (does_subset_exist_for_sum_dp(test_list, 1))
+
 
