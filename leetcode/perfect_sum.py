@@ -74,6 +74,8 @@ def does_subset_exist_for_sum_dp(num_list, sum_reqd):
     """A dynammic program version of the sum done in the apis 
     `does_subset_exist_for_sum_from_power_sets` and `does_subset_exist_for_sum`. 
     
+    Solution is inspired from the one in geeks for geeks.
+
     Parameters
     ----------
     num_list : list
@@ -85,29 +87,32 @@ def does_subset_exist_for_sum_dp(num_list, sum_reqd):
     
     """
     numbers_in_set = len(num_list)
-    history_table = (numbers_in_set + 1) * [(sum_reqd + 1) * [False]]
+    # Create a table with (len(num_list) + 1) * (sum_reqd + 1)) booleans to track the possibility of sum.
+    # Columns designate a `sum` and the rows designate the numbers from the set. 
+    subset_sum_table = [[False for i in range(sum_reqd + 1)]  for j in range(numbers_in_set + 1)] 
     
     # For a sum of 0, all elements are fine as the length of the array is `0`.
-    for row_num in range(numbers_in_set + 1):
-        history_table[row_num][0] = True
-    
-    for i in range(1, sum_reqd + 1):
-        history_table[0][i] = False
-    
+    # Hence first row must remain all False.
+    for i in range(numbers_in_set + 1):
+        subset_sum_table[i][0] = True
+     
+    # Filling the table from the sum of 0.
+    # start the row num from 1 as we have inserted a 0 the in the beginning for an empty set
+    # Start the column num from 1 as the first column corresponds to sum 0 which is already num_rows * [True]
     for row_num in range(1, numbers_in_set + 1):
-        for column_num in range(1, sum_reqd + 1):
-            current_number_from_set = num_list[row_num - 1]
+        for current_sum in range(1, sum_reqd + 1): # "sum_reqd + 1" as we want to go up to `sum_reqd` columns. 
+            current_number_from_set = num_list[row_num - 1] # -1 as the row_num has 0 in the first index for a null set.
+            
             # If the sum is lower than the number in the list, just use the result of the previous number in the list.
-            if column_num < current_number_from_set: 
-                history_table[row_num][column_num] = history_table[row_num - 1][column_num]
-            # Now either we check if the previous number satisfies the req or we reiterate to sum - current_num.
-            elif column_num >= current_number_from_set:
-                history_table[row_num][column_num] = (
-                    history_table[row_num - 1][column_num] or 
-                    history_table[row_num - 1][column_num - num_list[row_num - 1]]
+            if current_sum < current_number_from_set: 
+                subset_sum_table[row_num][current_sum] = subset_sum_table[row_num - 1][current_sum]
+            # Now either we check if the previous number satisfies the req or we reiterate to sum - current_number_from_set.
+            elif current_sum >= current_number_from_set:
+                subset_sum_table[row_num][current_sum] = (
+                    subset_sum_table[row_num - 1][current_sum] or 
+                    subset_sum_table[row_num - 1][current_sum - current_number_from_set]
                 )
-    return history_table[numbers_in_set][sum_reqd]
-
+    return subset_sum_table[numbers_in_set][sum_reqd]
 
 
 # Test cases
@@ -127,12 +132,16 @@ assert not (does_subset_exist_for_sum_from_power_sets(test_list, 16))
 
 # DP tests.
 test_list = [3, 34, 4, 12, 5, 2]
-assert (does_subset_exist_for_sum_dp(test_list, 9))
+assert (does_subset_exist_for_sum_dp(test_list, 0))
+assert (does_subset_exist_for_sum_dp(test_list, 3))
 assert (does_subset_exist_for_sum_dp(test_list, 37))
-assert (does_subset_exist_for_sum_dp(test_list, 500))
+assert (does_subset_exist_for_sum_dp(test_list, 38))
+assert not (does_subset_exist_for_sum_dp(test_list, 500))
 
 
 test_list = [1, 2, 3, 4, 5]
 assert (does_subset_exist_for_sum_dp(test_list, 10))
+assert (does_subset_exist_for_sum_dp(test_list, 0))
 assert not (does_subset_exist_for_sum_dp(test_list, 16))
+assert not (does_subset_exist_for_sum_dp(test_list, 999))
 
