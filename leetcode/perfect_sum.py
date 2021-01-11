@@ -115,6 +115,7 @@ def does_subset_exist_for_sum_dp(num_list, sum_reqd, display=True):
                 )
     sum_exists = subset_sum_table[numbers_in_set][sum_reqd]
     if sum_exists == True and display == True:
+        print(f"Required sum: {sum_reqd} from {num_list}")
         _display_all_solns(subset_sum_table, num_list, sum_reqd)
     return sum_exists
 
@@ -160,6 +161,7 @@ def _display_all_solns(subset_sum_table, num_list, sum_reqd, soln_set=None):
         _display_all_solns(subset_sum_table, num_list[:-1], sum_reqd, soln_set)
     
     return  
+
 
 # Test cases
 test_list = [1, 10, 3, 4]
