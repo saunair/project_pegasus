@@ -14,6 +14,7 @@ Output : 4 3 2 1
          5 3 2 
          5 4 1 
 """
+from copy import copy
 
 
 def does_subset_exist_for_sum(num_list, sum_reqd):
@@ -70,7 +71,7 @@ def does_subset_exist_for_sum_from_power_sets(num_list, sum_reqd):
     return True
    
 
-def does_subset_exist_for_sum_dp(num_list, sum_reqd):
+def does_subset_exist_for_sum_dp(num_list, sum_reqd, display=True):
     """A dynammic program version of the sum done in the apis 
     `does_subset_exist_for_sum_from_power_sets` and `does_subset_exist_for_sum`. 
     
@@ -83,7 +84,7 @@ def does_subset_exist_for_sum_dp(num_list, sum_reqd):
 
     Returns
     -------
-    bool : True if the `sum_reqd` subset exists in `num_list` .
+    bool : True if the `sum_reqd` subset exists in `num_list`.
     
     """
     numbers_in_set = len(num_list)
@@ -112,8 +113,53 @@ def does_subset_exist_for_sum_dp(num_list, sum_reqd):
                     subset_sum_table[row_num - 1][current_sum] or 
                     subset_sum_table[row_num - 1][current_sum - current_number_from_set]
                 )
-    return subset_sum_table[numbers_in_set][sum_reqd]
+    sum_exists = subset_sum_table[numbers_in_set][sum_reqd]
+    if sum_exists == True and display == True:
+        _display_all_solns(subset_sum_table, num_list, sum_reqd)
+    return sum_exists
 
+
+
+def _display_all_solns(subset_sum_table, num_list, sum_reqd, soln_set=None):
+    """Display the subset solutions.
+
+    This function is called only when the soln exists, so no need to worry about an exception of True not existing in the table
+    
+    Parameters
+    ----------
+    subset_sum_table : [[]]
+    num_list : []
+    sum_reqd : int
+    soln_set : None | []
+
+    """
+    if soln_set is None:
+        soln_set = []
+   
+    number_index = len(num_list)
+    if subset_sum_table[-1][sum_reqd] is False:
+        return 
+
+    # We are done here, right?
+    if sum_reqd == 0 and len(num_list) ==0 :
+        print(f"soln: {soln_set}")
+        return
+    
+    if sum_reqd > 0 and len(num_list) == 1 and subset_sum_table[0][sum_reqd]:
+        soln_set.append(num_list[0])
+        print(f"soln: {soln_set}")
+        return
+    
+    if (sum_reqd >= num_list[-1] and subset_sum_table[number_index -1][sum_reqd - num_list[-1]]):
+        new_soln_set = copy(soln_set)
+        new_soln_set.append(num_list[-1])
+        _display_all_solns(subset_sum_table, num_list[:-1], sum_reqd - num_list[-1], new_soln_set)
+    
+    # without the element 
+    if subset_sum_table[number_index - 1][sum_reqd]:
+        _display_all_solns(subset_sum_table, num_list[:-1], sum_reqd, soln_set)
+    
+    return  
 
 # Test cases
 test_list = [1, 10, 3, 4]
@@ -126,6 +172,8 @@ assert (does_subset_exist_for_sum(test_list, 10))
 assert (does_subset_exist_for_sum(test_list, 4))
 assert not (does_subset_exist_for_sum(test_list, 16))
 
+
+# All sets are created and summed here.
 assert (does_subset_exist_for_sum_from_power_sets(test_list, 10))
 assert (does_subset_exist_for_sum_from_power_sets(test_list, 4))
 assert not (does_subset_exist_for_sum_from_power_sets(test_list, 16))
@@ -134,6 +182,7 @@ assert not (does_subset_exist_for_sum_from_power_sets(test_list, 16))
 test_list = [3, 34, 4, 12, 5, 2]
 assert (does_subset_exist_for_sum_dp(test_list, 0))
 assert (does_subset_exist_for_sum_dp(test_list, 3))
+assert (does_subset_exist_for_sum_dp(test_list, 7))
 assert (does_subset_exist_for_sum_dp(test_list, 37))
 assert (does_subset_exist_for_sum_dp(test_list, 38))
 assert not (does_subset_exist_for_sum_dp(test_list, 500))
