@@ -23,6 +23,7 @@ class Node:
         return node
     
     def insert(self, data):
+        """Insert `data` to the appropriate location."""
         assert isinstance(data, float), f"Data to be inserted has to be a {float} not {type(data)}"
         if self.data is None:
             self.data = data
@@ -44,11 +45,27 @@ class Node:
         return 
 
     def print_tree(self):
+        """Just print the tree in order"""
         if self.left:
             self.left.print_tree()
         print(f" {self.data}")
         if self.right:
             self.right.print_tree()
+    
+    def in_order_traversal(self):
+        """Just get a list of the elements with the correct order.
+        Couldn't figure why we'd need out of order or others. Maybe there is another application
+        Others are pre-order, post-order 
+
+        """
+        output_list = []
+        
+        if self.data:
+            output_list = self.left.in_order_traversal()
+            output_list.append(self.data)
+            output_list + self.right.in_order_traversal()
+        
+        return output_list
 
     @property
     def data(self):
