@@ -1,6 +1,31 @@
 
 
-
+def knapsack_space_optimized_dp(value_set, weight_set, total_weight):
+    """Space optimized version of `knapsack_dp`. 
+    Here we conciously know that we only need two rows to compute the True/False"""
+    # Creating only two rows. 
+    dp_table = [[0 for _ in range(total_weight + 1)] for _ in range(2)]
+    number_of_elements = len(value_set)
+    for row_num in range(1, number_of_elements + 1):
+        for current_weight in range(1, total_weight + 1):
+            element_weight = weight_set[row_num - 1]
+            if row_num % 2 == 0:
+                if current_weight < element_weight:
+                    dp_table[1][current_weight] = dp_table[0][current_weight]  # Setting from the previous row
+                else:
+                    dp_table[1][current_weight] = max(
+                        dp_table[0][current_weight], 
+                        value_set[row_num - 1] + dp_table[0][current_weight - element_weight]
+                    )
+            else:
+                if current_weight < element_weight:
+                    dp_table[0][current_weight] = dp_table[1][current_weight]  # Setting from the previous row
+                else:
+                    dp_table[0][current_weight] = max(
+                        dp_table[1][current_weight], 
+                        value_set[row_num - 1] + dp_table[1][current_weight - element_weight]
+                    )
+    return max(dp_table[1][total_weight], dp_table[0][total_weight])
 
 
 def knapsack_dp(value_set, weight_set, total_weight):
@@ -82,15 +107,24 @@ i
     # We have the solution populated!
     return dp_table[max_number_of_elements][row][column]
 
-# Test case1: plain knapsack, hence total val is 100 + 120 + 2
-val = [60, 100, 120, 2] 
-wt = [10, 20, 29, 1] 
-W = 50
-assert knapsack_dp(value_set=val, weight_set=wt, total_weight=W) == 222
 
-# we can choose only two elements, hence 120 + 100 
-val = [60, 100, 120, 2] 
-wt = [10, 20, 30, 1] 
-W = 50
-assert extended_knapsack_dp(value_set=val, weight_set=wt, total_allowed_weight=W, max_number_of_elements=2) == 220
+if __name__ == "__main__":
+    # Test case1: plain knapsack, hence total val is 100 + 120 + 2
+    val = [60, 100, 120, 2] 
+    wt = [10, 20, 29, 1] 
+    W = 50
+    assert knapsack_dp(value_set=val, weight_set=wt, total_weight=W) == 222
+    
+    # Test case2: space optimized knapsack, hence total val is 100 + 120 + 2
+    val = [60, 100, 120, 2] 
+    wt = [10, 20, 29, 1] 
+    W = 50
+    assert knapsack_space_optimized_dp(value_set=val, weight_set=wt, total_weight=W) == 222
+
+    # we can choose only two elements, hence 120 + 100 
+    val = [60, 100, 120, 2] 
+    wt = [10, 20, 30, 1] 
+    W = 50
+    assert extended_knapsack_dp(value_set=val, weight_set=wt, total_allowed_weight=W, max_number_of_elements=2) == 220
+
 

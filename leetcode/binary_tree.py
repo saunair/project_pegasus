@@ -132,6 +132,8 @@ left_node.left = Node(1, None, None)
 left_node.right = Node(4, None, None)
 
 right_node.left = Node(6, None, None)
+root_node.insert(float(11))
+root_node.insert(float(2))
 
 root_node.print_tree()
 assert root_node.max_depth == 3
@@ -139,6 +141,5 @@ assert root_node.max_depth == 3
 example_sorted_list = [float(num) for num in range(30)]
 
 root_node = Node.make_tree_from_sorted_list(example_sorted_list)
-import IPython; IPython.embed()
 print(root_node.print_tree())
 
