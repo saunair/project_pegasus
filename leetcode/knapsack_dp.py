@@ -1,4 +1,4 @@
-
+import tracemalloc
 
 def knapsack_space_optimized_dp(value_set, weight_set, total_weight):
     """Space optimized version of `knapsack_dp`. 
@@ -113,14 +113,19 @@ if __name__ == "__main__":
     val = [60, 100, 120, 2] 
     wt = [10, 20, 29, 1] 
     W = 50
+    tracemalloc.start()
     assert knapsack_dp(value_set=val, weight_set=wt, total_weight=W) == 222
-    
+    first_size, first_peak = tracemalloc.get_traced_memory() 
+    print(f"size_dp: {first_size}, dp_peak_memory: {first_peak}") 
     # Test case2: space optimized knapsack, hence total val is 100 + 120 + 2
     val = [60, 100, 120, 2] 
     wt = [10, 20, 29, 1] 
     W = 50
+    tracemalloc.clear_traces()
     assert knapsack_space_optimized_dp(value_set=val, weight_set=wt, total_weight=W) == 222
-
+    second_size, second_peak = tracemalloc.get_traced_memory() 
+    print(f"size_dp_optimized: {second_size}, dp_peak_memory: {second_peak}") 
+    
     # we can choose only two elements, hence 120 + 100 
     val = [60, 100, 120, 2] 
     wt = [10, 20, 30, 1] 
