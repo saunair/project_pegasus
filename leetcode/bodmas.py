@@ -37,12 +37,12 @@ def get_operators_and_operands_from_string(user_string):
     operand_list = []
     num_cache = 0.
     decimal_multiplier = 1.
-    user_input = list(user_string)
+    user_input = list(user_string)  # this makes a copy too
     for char_index, character in enumerate(user_input):
-        print(user_input, "sfadsafdsa")
+        print(user_input)
         if character == " ":
             continue 
-
+        
         elif character == '(':
             index_to_expr = user_input[char_index:].index(')')
             if index_to_expr < 0:
@@ -52,8 +52,11 @@ def get_operators_and_operands_from_string(user_string):
                     user_input[char_index+1:char_index+index_to_expr]
                 )
             )
+            del user_input[char_index + 1: char_index+index_to_expr + 1]
+ 
             user_input[char_index] = internal_soln
-            del user_input[char_index+1:char_index+index_to_expr+1]
+            num_cache = internal_soln
+            continue
 
         elif character == '.':
             decimal_multiplier /= 10.
@@ -109,7 +112,6 @@ def solve_bracket(single_bodmas_stack):
         current_operator = operand_imp[0]
         for index, operator in enumerate(operator_stack):
             if operator == current_operator:
-                print(current_operator, number_stack[index], number_stack[index + 1])
                 ans = operation[current_operator](
                     number_stack[index], 
                     number_stack[index + 1]
@@ -123,16 +125,21 @@ def solve_bracket(single_bodmas_stack):
                 
 
 if __name__ == "__main__":
-    #a = get_operators_and_operands_from_string("3.2-20+4/10+92*100")
-    #soln = solve_bracket(a)
-    #assert np.isclose(soln, -9217.1999, rtol=1e-3), f"got {soln} not 1996.8"
-    #soln = solve_bracket(get_operators_and_operands_from_string("2^3+2"))
-    #assert soln == 10.0, f"got {a} instead of 10.0"
-    #
-    #a = get_operators_and_operands_from_string("3.2-(20+4)/10+92*100")
-    #soln = solve_bracket(a)
-    #assert soln == -9196.8, f"not {soln}"
-    
-    a = get_operators_and_operands_from_string("(20.+4)*(2.^3)")
+    a = get_operators_and_operands_from_string("3.2-20+4/10+92*100")
     soln = solve_bracket(a)
-    assert soln == 3, f"not {soln}"
+    assert np.isclose(soln, -9217.1999, rtol=1e-3), f"got {soln} not 1996.8"
+    soln = solve_bracket(get_operators_and_operands_from_string("2^3+2"))
+    assert soln == 10.0, f"got {a} instead of 10.0"
+    
+    a = get_operators_and_operands_from_string("3.2-(20+4)/10+92*100")
+    soln = solve_bracket(a)
+    assert np.isclose(soln, -9199.1999, rtol=1e-4), f"not {soln}"
+    
+    soln = solve_bracket(get_operators_and_operands_from_string("(2^3)"))
+    assert soln == 8, f"need 8 not {soln}"
+    
+    soln = solve_bracket(get_operators_and_operands_from_string("(2*2)+4"))
+    assert soln == 8, f"need 1 not {soln}"
+    
+    soln = solve_bracket(get_operators_and_operands_from_string("(2*2+2)+4"))
+    assert soln == 10, f"need 24 not {soln}"
