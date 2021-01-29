@@ -7,6 +7,10 @@ from queue import Queue, Empty
 # Disadvantage - We can't actually process middle elements like a list. 
 
 
+# Dequeue is just a data-structure. Queue is a tool of sorts build on top of dequeue.
+# Queue shouldn't be used as a collection. It must be used for communication between different threads etc.
+# If we have multiple threads accessing the same queue, we should use a Queue as it is threadsafe and we wouldn't need any locking whatsoever.
+
 def example_dequeue_from_geeks():
     q = deque() 
     q.append('a')
