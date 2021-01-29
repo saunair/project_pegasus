@@ -1,3 +1,4 @@
+from threading import Thread
 from collections import deque
 from queue import Queue, Empty
 # dequeue / queue is preferred over lists where pop operations are O(1) here vs O(n) for a list. 
@@ -41,6 +42,30 @@ def queue_example_geeks():
     print(q.get()) # Expect the pause here?
 
 
+
+def square_the_number(number):
+    return number ** 2
+
+
+def execute_queue_actions(action_queue):
+    while True:
+        number = action_queue.get()
+        print(square_the_number(number))
+        action_queue.task_done()
+
+
+def threading_example():
+    action_queue = Queue()
+    Thread(target=execute_queue_actions, daemon=True, args=(action_queue, )).start()
+    for number in range(10):
+        action_queue.put(number)
+
+    action_queue.put(100)
+    action_queue.join()
+    print("Done with all the tasks")
+     
+
 if __name__ == "__main__":
     example_dequeue_from_geeks()
+    threading_example()
     queue_example_geeks()
