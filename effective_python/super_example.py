@@ -7,15 +7,16 @@ class Rectangle:
         return self.length * self.width
 
 
+# An example for Super for parent construction.
+class Square(Rectangle):
+    def __init__(self, length):
+        super(Square, self).__init__(length, length)
+
+
 class VolumeMixin:
     @property
     def volume(self):
         return self.surface_area *  self.height       
-
-
-class Square(Rectangle):
-    def __init__(self, length):
-        super(Square, self).__init__(length, length)
 
 
 class Cuboid(Rectangle, VolumeMixin):
@@ -23,19 +24,18 @@ class Cuboid(Rectangle, VolumeMixin):
         self.length = length
         self.breadth = breadth
         self.height = height
-
         super(Rectangle, self).__init__(length, breadth)
     
     @property
     def surface_area(self):
-        return 2*((self.length*self.breadth) + (self.breadth*self.height) + (self.length*self.height))
+        """Total surface area is a sum of each side's area, multiplied by two"""
+        return 2*((super().area()) + (self.breadth*self.height) + (self.length*self.height))
 
 
-class Cube(Square): 
-    @property
-    def surface_area(self):
-        return super(Square, self).area()
-    
+class Cube(Cuboid): 
+    def __init__(self, length):
+        super(Cuboid, self).__init__(length, length, length)
+
 
 class Triangle:
     def __init__(self, base, height):
@@ -43,6 +43,7 @@ class Triangle:
         self.height = height
     
     def triangle_area(self):
+        """ Half * base * height"""
         return 0.5 * self.base * self.height
 
 
