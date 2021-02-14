@@ -96,14 +96,14 @@ i
     for row in range(1, len(value_set) + 1):
         for column in range(1, total_allowed_weight + 1):
             for dimension in range(1, max_number_of_elements + 1):
-                if column < weight_set[row - 1]:
+                element_weight = weight_set[row - 1]
+                if column < element_weight:
                     dp_table[dimension][row][column] = dp_table[dimension][row -1][column]
                 else:
                     dp_table[dimension][row][column] = max(
-                        dp_table[dimension][row -1][column], 
-                        dp_table[dimension - 1][row][column - weight_set[row - 1]] + value_set[row - 1]
+                        dp_table[dimension][row -1][column], #Current element is not selected.
+                        dp_table[dimension - 1][row][column - element_weight] + value_set[row - 1]
                     ) 
-    
     # We have the solution populated!
     return dp_table[max_number_of_elements][row][column]
 
@@ -130,6 +130,10 @@ if __name__ == "__main__":
     val = [60, 100, 120, 2] 
     wt = [10, 20, 30, 1] 
     W = 50
+    tracemalloc.clear_traces()
+    tracemalloc.start()
     assert extended_knapsack_dp(value_set=val, weight_set=wt, total_allowed_weight=W, max_number_of_elements=2) == 220
+    third_size, third_peak = tracemalloc.get_traced_memory() 
+    print(f"extended_knapsack: {third_size}, dp_peak_memory: {third_peak}") 
 
 
