@@ -92,20 +92,61 @@ i
 
     """
     number_of_elements = len(value_set)
-    dp_table = [[[0 for _ in range(total_allowed_weight + 1)] for _ in range(number_of_elements + 1)] for _ in range(max_number_of_elements + 1)]
-    for row in range(1, len(value_set) + 1):
-        for column in range(1, total_allowed_weight + 1):
-            for dimension in range(1, max_number_of_elements + 1):
+    # Just bounding the problem as the user can give ridiculous inputs. This is not an unbounded knapsack problem.
+    max_number_of_elements = min(max_number_of_elements, number_of_elements)
+    total_allowed_weight = min(total_allowed_weight, sum(weight_set))
+
+    # Create a 3D dp table. 2D internal table is a singular knapsack table, outer dimension for number of elements allowed.
+    dp_table = [
+        [
+            [0 for _ in range(total_allowed_weight + 1)] for _ in range(number_of_elements + 1)
+        ] for _ in range(max_number_of_elements + 1)
+    ]
+    for dimension in range(1, max_number_of_elements + 1):
+        for row in range(1, len(value_set) + 1):
+            for current_weight in range(1, total_allowed_weight + 1):
                 element_weight = weight_set[row - 1]
-                if column < element_weight:
-                    dp_table[dimension][row][column] = dp_table[dimension][row -1][column]
+                if current_weight < element_weight:
+                    dp_table[dimension][row][current_weight] = dp_table[dimension][row -1][current_weight]
                 else:
-                    dp_table[dimension][row][column] = max(
-                        dp_table[dimension][row -1][column], #Current element is not selected.
-                        dp_table[dimension - 1][row][column - element_weight] + value_set[row - 1]
+                    #if  dp_table[dimension - 1][row][column - element_weight] + value_set[row - 1] > sum(value_set):
+                    dp_table[dimension][row][current_weight] = max(
+                        dp_table[dimension][row -1][current_weight], #Current element is not selected.
+                        dp_table[dimension - 1][row -1][current_weight - element_weight] + value_set[row - 1]
                     ) 
-    # We have the solution populated!
-    return dp_table[max_number_of_elements][row][column]
+    return dp_table[max_number_of_elements][row][current_weight]
+
+
+def unbounded_knapsack(sack_weight_capacity, value_set, weight_set):
+    """This is a knapsack with 
+    
+    Parameters
+    ----------
+    sack_weight_capacity : int
+    value_set : [int]
+    weight_set : [int]
+
+    Raises
+    ------
+    AssertionError
+         If lengths of `value_set` and `weight_set` aren't equal.
+
+    Returns
+    -------
+    int : The maximum value that can go into the sack under the required weight limit.
+
+    """
+    assert len(value_set) == len(weight_set), "The properties of the set must have the same length, you dumb fuck"
+    dp_table = [0. for _ in range(sack_weight_capacity + 1)]
+
+    for current_weight in range(1, sack_weight_capacity + 1):
+        for element_num in range(len(value_set)):
+            if weight_set[element_num] <= current_weight:
+                dp_table[current_weight] = max(
+                    dp_table[current_weight], 
+                    dp_table[current_weight - weight_set[element_num]] + value_set[element_num]
+                )
+    return dp_table[sack_weight_capacity]
 
 
 if __name__ == "__main__":
@@ -128,12 +169,21 @@ if __name__ == "__main__":
     
     # we can choose only two elements, hence 120 + 100 
     val = [60, 100, 120, 2] 
-    wt = [10, 20, 30, 1] 
+    wt = [10, 20, 29, 1] 
     W = 50
     tracemalloc.clear_traces()
     tracemalloc.start()
-    assert extended_knapsack_dp(value_set=val, weight_set=wt, total_allowed_weight=W, max_number_of_elements=2) == 220
+    ans = extended_knapsack_dp(value_set=val, weight_set=wt, total_allowed_weight=W, max_number_of_elements=2)
+    assert ans == 220, f"{ans}, not 220"
+
     third_size, third_peak = tracemalloc.get_traced_memory() 
     print(f"extended_knapsack: {third_size}, dp_peak_memory: {third_peak}") 
+    
+    # Ridiculous unconstrained case, but elements cannot repeat.
+    val = [60, 100, 120, 2] 
+    wt = [10, 20, 29, 1] 
+    W = 50
+    ans = extended_knapsack_dp(value_set=val, weight_set=wt, total_allowed_weight=70000, max_number_of_elements=1000)
+    assert ans == 282, f"{ans}, not 220"
 
-
+    assert (unbounded_knapsack(sack_weight_capacity=29, value_set=val, weight_set=wt)) == 138
