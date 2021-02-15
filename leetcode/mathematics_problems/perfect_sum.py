@@ -163,40 +163,41 @@ def _display_all_solns(subset_sum_table, num_list, sum_reqd, soln_set=None):
     return  
 
 
-# Test cases
-test_list = [1, 10, 3, 4]
-assert (does_subset_exist_for_sum(test_list, 1))
-assert (does_subset_exist_for_sum(test_list, 11))
-assert not (does_subset_exist_for_sum(test_list, 12))
+if __name__ == "__main__":
+    # Test cases
+    test_list = [1, 10, 3, 4]
+    assert (does_subset_exist_for_sum(test_list, 1))
+    assert (does_subset_exist_for_sum(test_list, 11))
+    assert not (does_subset_exist_for_sum(test_list, 12))
 
-test_list = [1, 2, 3, 4, 5]
-assert (does_subset_exist_for_sum(test_list, 10))
-assert (does_subset_exist_for_sum(test_list, 4))
-assert not (does_subset_exist_for_sum(test_list, 16))
+    test_list = [1, 2, 3, 4, 5]
+    assert (does_subset_exist_for_sum(test_list, 10))
+    assert (does_subset_exist_for_sum(test_list, 4))
+    assert not (does_subset_exist_for_sum(test_list, 16))
 
 
-# All sets are created and summed here.
-assert (does_subset_exist_for_sum_from_power_sets(test_list, 10))
-assert (does_subset_exist_for_sum_from_power_sets(test_list, 4))
-assert not (does_subset_exist_for_sum_from_power_sets(test_list, 16))
+    # All sets are created and summed here.
+    assert (does_subset_exist_for_sum_from_power_sets(test_list, 10))
+    assert (does_subset_exist_for_sum_from_power_sets(test_list, 4))
+    assert not (does_subset_exist_for_sum_from_power_sets(test_list, 16))
 
-# DP tests.
-test_list = [3, 34, 4, 12, 5, 2]
-assert (does_subset_exist_for_sum_dp(test_list, 0))
-assert (does_subset_exist_for_sum_dp(test_list, 3))
-assert (does_subset_exist_for_sum_dp(test_list, 7))
-assert (does_subset_exist_for_sum_dp(test_list, 37))
-assert (does_subset_exist_for_sum_dp(test_list, 38))
-assert not (does_subset_exist_for_sum_dp(test_list, 500))
+    # DP tests.
+    test_list = [3, 34, 4, 12, 5, 2]
+    assert (does_subset_exist_for_sum_dp(test_list, 0))
+    assert (does_subset_exist_for_sum_dp(test_list, 3))
+    assert (does_subset_exist_for_sum_dp(test_list, 7))
+    assert (does_subset_exist_for_sum_dp(test_list, 37))
+    assert (does_subset_exist_for_sum_dp(test_list, 38))
+    assert not (does_subset_exist_for_sum_dp(test_list, 500))
 
-test_list = [1, 2, 3, 4, 5]
-assert (does_subset_exist_for_sum_dp(test_list, 10))
-assert (does_subset_exist_for_sum_dp(test_list, 0))
-assert not (does_subset_exist_for_sum_dp(test_list, 16))
-assert not (does_subset_exist_for_sum_dp(test_list, 999))
+    test_list = [1, 2, 3, 4, 5]
+    assert (does_subset_exist_for_sum_dp(test_list, 10))
+    assert (does_subset_exist_for_sum_dp(test_list, 0))
+    assert not (does_subset_exist_for_sum_dp(test_list, 16))
+    assert not (does_subset_exist_for_sum_dp(test_list, 999))
 
-test_list = []
-assert (does_subset_exist_for_sum_dp(test_list, 0))
-assert not (does_subset_exist_for_sum_dp(test_list, 1))
+    test_list = []
+    assert (does_subset_exist_for_sum_dp(test_list, 0))
+    assert not (does_subset_exist_for_sum_dp(test_list, 1))
 
 
