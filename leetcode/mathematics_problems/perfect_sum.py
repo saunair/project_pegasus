@@ -108,7 +108,7 @@ def does_subset_exist_for_sum_dp(num_list, sum_reqd, display=True):
             if current_sum < current_number_from_set: 
                 subset_sum_table[row_num][current_sum] = subset_sum_table[row_num - 1][current_sum]
             # Now either we check if the previous number satisfies the req or we reiterate to sum - current_number_from_set.
-            elif current_sum >= current_number_from_set:
+            else: 
                 subset_sum_table[row_num][current_sum] = (
                     subset_sum_table[row_num - 1][current_sum] or 
                     subset_sum_table[row_num - 1][current_sum - current_number_from_set]
