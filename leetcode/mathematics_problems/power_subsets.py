@@ -4,6 +4,18 @@ If S has n elements in it then P(s) will have 2^n elements"""
 
 
 def generate_power_sets(sample_list):
+    """Generate all possible subsets from the `sample_list`.
+
+    Parameters
+    ----------
+    sample_list : [int]
+    
+    Returns
+    -------
+    [[int]]
+        All possible subsets
+    
+    """
     num_of_combinations = pow(2, len(sample_list))
     all_sets = []
     for element_number in range(num_of_combinations):
