@@ -163,6 +163,29 @@ def _display_all_solns(subset_sum_table, num_list, sum_reqd, soln_set=None):
     return  
 
 
+def perfect_sum_with_repetition(num_list, sum_required):
+    """Like the previous problems, but we can repeat the number here. 
+    We just find the number of ways we can do it.
+    
+    Parameters
+    ----------
+    num_list : [int]
+    sum_required: int
+
+    Returns
+    -------
+    int
+
+    """
+    count_dp = [0 for _ in range(sum_required + 1)]
+    count_dp[0] = 1
+    for current_sum in range(1, sum_required + 1):
+        for element_number in range(len(num_list)):
+            if num_list[element_number] <= current_sum:
+                count_dp[current_sum] += count_dp[current_sum - num_list[element_number]]
+    return count_dp[sum_required]
+
+
 if __name__ == "__main__":
     # Test cases
     test_list = [1, 10, 3, 4]
@@ -200,4 +223,8 @@ if __name__ == "__main__":
     assert (does_subset_exist_for_sum_dp(test_list, 0))
     assert not (does_subset_exist_for_sum_dp(test_list, 1))
 
-
+    # Driver Code 
+    arr = [1, 5, 6] 
+    N = 7
+    a = perfect_sum_with_repetition(arr, N)
+    print(a)

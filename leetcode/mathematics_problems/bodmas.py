@@ -25,7 +25,6 @@ def get_operators_and_operands_from_string(user_string):
     Returns
     -------
     [SingleStack]
-    [char]
 
     Raises
     ------
