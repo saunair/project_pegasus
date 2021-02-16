@@ -63,8 +63,28 @@ def knapsack_dp(value_set, weight_set, total_weight):
                     dp_table[row_num - 1][current_weight], # Current element is not chosen.
                     value_set[row_num - 1] + dp_table[row_num - 1][current_weight - element_weight] # Element is chosen.
                 )
+    display_knapsack_solution(
+        dp_table=dp_table,
+        value_set=value_set,
+        weight_set=weight_set,
+        sack_capacity=total_weight
+    )
 
     return dp_table[number_of_elements][total_weight]
+
+
+def display_knapsack_solution(dp_table, value_set, weight_set, sack_capacity):
+    res = dp_table[len(value_set)][sack_capacity]
+    
+    current_sack_capacity = sack_capacity
+    solution_set = []
+    for row_num in range(len(value_set) + 1, 0, -1):
+        if res == dp_table[row_num - 1][current_sack_capacity]:
+             continue
+        solution_set.append(value_set[row_num - 1])
+        res = dp_table[row_num - 1][current_sack_capacity - weight_set[row_num - 1]]
+        current_sack_capacity = current_sack_capacity - weight_set[row_num - 1]
+    print(f"Solution set: {solution_set}")
 
 
 def extended_knapsack_dp(value_set, weight_set, total_allowed_weight, max_number_of_elements):
