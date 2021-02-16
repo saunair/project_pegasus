@@ -116,8 +116,39 @@ def does_subset_exist_for_sum_dp(num_list, sum_reqd, display=True):
     sum_exists = subset_sum_table[numbers_in_set][sum_reqd]
     if sum_exists == True and display == True:
         print(f"Required sum: {sum_reqd} from {num_list}")
-        _display_all_solns(subset_sum_table, num_list, sum_reqd)
+        
+        #_display_all_solns(subset_sum_table, num_list, sum_reqd)
+        display_solns(subset_sum_table, num_list, sum_reqd)
     return sum_exists
+
+
+def display_solns(subset_sum_table, num_list, sum_required):
+    """Display all the solutions, but in an iterative way. Better than recursive no?
+    
+    Parameters
+    ----------
+    subset_sum_table : [[int]] 
+    num_list : [int]
+    sum_required : int
+
+    """
+    res = subset_sum_table[len(num_list)][sum_required]
+
+    if res is False:
+        print("No soln")
+        return
+    
+    all_nums = []
+    for row_num in range(len(num_list) + 1, 0, -1):
+        res = subset_sum_table[row_num -1][sum_required]
+        if res is True:
+           continue
+        all_nums.append(num_list[row_num - 1])
+        sum_required = sum_required - num_list[row_num - 1]
+    
+    print(f"{all_nums} for sum: {sum_required}")
+    return
+
 
 
 
