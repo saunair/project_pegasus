@@ -74,6 +74,12 @@ def knapsack_dp(value_set, weight_set, total_weight):
 
 
 def display_knapsack_solution(dp_table, value_set, weight_set, sack_capacity):
+    """Non recursive solution. 
+    
+    We check the solution, compare it to the previous row, if the same value, 
+    we know the current `row` isn't included in the solution.
+
+    """
     res = dp_table[len(value_set)][sack_capacity]
     
     current_sack_capacity = sack_capacity
@@ -138,7 +144,9 @@ i
 
 
 def unbounded_knapsack(sack_weight_capacity, value_set, weight_set):
-    """This is a knapsack with 
+    """This is a knapsack with elements that can be repeated.
+
+    So we iterate through every element each time we add a weight/solve for a total_capacity. 
     
     Parameters
     ----------
