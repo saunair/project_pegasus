@@ -89,10 +89,10 @@ def fractional_knapsack_queries(value_set, weight_set, total_capacity):
             )
         else:
             soln_for_query = (
-                summed_elements_sorted_by_ratio[index - 2].value + 
-                (weight_query - summed_elements_sorted_by_ratio[index - 2].weight) *
-                (summed_elements_sorted_by_ratio[index - 2].weight - summed_elements_sorted_by_ratio[index - 1].weight) / 
-                (summed_elements_sorted_by_ratio[index - 2].value - summed_elements_sorted_by_ratio[index - 1].value)
+                summed_elements_sorted_by_ratio[index - 1].value + 
+                (weight_query - summed_elements_sorted_by_ratio[index - 1].weight) *
+                (summed_elements_sorted_by_ratio[index].weight - summed_elements_sorted_by_ratio[index - 1].weight) / 
+                (summed_elements_sorted_by_ratio[index].value - summed_elements_sorted_by_ratio[index - 1].value)
             )
         solns.append(soln_for_query)
     return solns

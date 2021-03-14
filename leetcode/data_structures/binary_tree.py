@@ -17,9 +17,11 @@ class Node:
             return cls(data=None)
 
         mid_val = int(len(sorted_list) / 2)
-        node = cls(data=sorted_list[mid_val])
-        node.left = cls.make_tree_from_sorted_list(sorted_list[:mid_val])
-        node.right = cls.make_tree_from_sorted_list(sorted_list[mid_val + 1:])
+        node = cls(
+            data=sorted_list[mid_val],
+            left=cls.make_tree_from_sorted_list(sorted_list[:mid_val]),
+            right=cls.make_tree_from_sorted_list(sorted_list[mid_val + 1:])
+        )
         return node
     
     def insert(self, data):
