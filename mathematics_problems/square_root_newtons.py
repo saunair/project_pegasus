@@ -1,3 +1,27 @@
+"""
+Here: f(x) = x^2 - A 
+We've got to minimize f(x) to find the square root of A, which is x. 
+
+Newton-Raphson's method - 
+
+Primer: 
+    For a curve, tangent at point x_k is:
+        a) y = f'(x)*(x - x_k) + f(x_k)  (slope is f'(x), f(x_k) is "c")
+
+The method now says, let's start from an initial condition: x_k
+The next best estimate of the root: x_k+1 is the x-intercept of tangent at x_k; which means y=0. 
+Plugging this at a), 
+    0 = f'(x_k)*(x_k+1 - x_k) + f(x_k)
+    x_k+1 = x_k - f(x_k) / f'(x_k) 
+
+Now x_k+1 = x_k for the next iteration. 
+
+side note: it is mesmerizing to see how newton thought algorithmically. Math is pretty much algorithms with constraints. 
+This also made me read about quasi-newton methods, like BFGS, which I had used in camera calibration. The appreciation for mathematics isn't enough. 
+
+"""
+
+
 import numpy as np
 
 

@@ -1,3 +1,12 @@
+"""
+Check out https://www.youtube.com/watch?v=gMlf1ELvRzc ; Veritasium is a good addiction to have. 
+We are using an area sampling method. Instead of doing a perimeter method like Archimedes's method of polygon ratios, 
+we are just taking ratios of areas in this code. We can do that only using a computer using randomness. 
+A similar method might be using integration to find out the area of the circle and the area of the square. 
+
+- Side note, Issac Newton as a motherfucking genius. It took me 28 years to appreciate his contributions to the world. 
+
+"""
 import numpy as np
 
 
