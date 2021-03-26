@@ -68,9 +68,35 @@ def _get_random_generator(seed):
     return np.random.RandomState(seed=seed) 
 
 
+
+def integration_method(num_of_rectangles):
+    """Following the method here: https://www.youtube.com/watch?v=uK2OQMUAUDQ
+    
+    Basically `num_of_rectangles` is the number of rectangles representing a quarter circle.
+
+    """
+    estimated_area_of_quarter = 0.
+    width = 1. / num_of_rectangles
+    for rectangle_num in range(1 , num_of_rectangles):
+        x_k = (rectangle_num  - 1) * width  # first x starts from 0, hence the -1
+        # Applying the circle equation to find "y"
+        y_k = np.sqrt(1 - x_k**2)
+
+        # y_k is the height of the rectangle, i.e. length
+        current_area = y_k * width
+        estimated_area_of_quarter += current_area
+
+    # pi * r^2 / 4 = total_area_of_of_quarter; r=1 in this case.
+    pi = estimated_area_of_quarter * 4   
+    return pi
+
+
 if __name__ == "__main__":
     apple_pie = sample_and_estimate_pi(num_iterations=100000)
-    print(f"Estimated pi as {apple_pie}")
+    print(f"Estimated pi using random area sampling as {apple_pie}")
     assert np.isclose(apple_pie, np.pi, rtol=1e-3)
     
+    pecan_pie = integration_method(10000)
+    print(f"Estimated pi using summation as {pecan_pie}")
+    assert np.isclose(pecan_pie, np.pi, rtol=1e-3)
 
