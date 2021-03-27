@@ -1,4 +1,8 @@
-"""Euler's constant "e"'s estimation."""
+"""Euler's constant "e"'s estimation.
+
+Influenced by the Numberphile video: https://www.youtube.com/watch?v=AuA2EAgAegE
+
+"""
 
 
 def estimate_euler_constant(number_of_elements=1000):
