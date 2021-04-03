@@ -68,7 +68,6 @@ def _get_random_generator(seed):
     return np.random.RandomState(seed=seed) 
 
 
-
 def integration_method(num_of_rectangles):
     """Following the method here: https://www.youtube.com/watch?v=uK2OQMUAUDQ
     
