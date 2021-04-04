@@ -74,3 +74,4 @@ if __name__ == "__main__":
     function = lambda x: 2 * x + 3
     assert np.isclose((bisection_search(math_function=function, endpoint_min=-20, endpoint_max=20)).x, -1.5, atol=1e-3)
 
+    function = lambda x: x**2 - 4
