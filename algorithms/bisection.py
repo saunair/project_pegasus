@@ -31,8 +31,14 @@ def bisection_search(math_function, endpoint_min, endpoint_max, tolerance=1e-4, 
     -------
     Point: Point at the minima
 
+    Raises
+    ------
+    AssertionError: If endpoint_min > endpoint_max
+    AssertionError: If sign(math_function(endpoint_min)) == sign(math_function(endpoint_max))
+
     """
     assert endpoint_min < endpoint_max, "Input range not ordered."
+    assert np.sign(math_function(endpoint_min)) != np.sign(math_function(endpoint_max))
     lower_x = endpoint_min
     higher_x = endpoint_max
 
