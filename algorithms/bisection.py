@@ -45,9 +45,10 @@ def bisection_search(math_function, endpoint_min, endpoint_max, tolerance=1e-4, 
         if np.isclose(current_y_at_x, previous_val_at_x, atol=tolerance) or np.isclose(current_y_at_x, 0, atol=tolerance) or np.isclose(current_x / 2, higher_x, tolerance):
             break
 
+        # If the sign at the lower point and the mid point are the same, we make the lower bound go to the mid-point. 
         if np.sign(current_y_at_x) == np.sign(function(lower_x)):
             lower_x = current_x
-        else:
+        else: # If not, we have crossed the zero, hence retain the lower point and update the higher.
             higher_x = current_x
         current_iteration += 1
 
