@@ -41,7 +41,8 @@ def bisection_search(
 
     """
     assert endpoint_min < endpoint_max, "Input range not ordered."
-    assert np.sign(math_function(endpoint_min)) != np.sign(math_function(endpoint_max))
+    # The following assertion can be added for functions that are linear. Imagine a parabola, this assumption might break.
+    # assert np.sign(math_function(endpoint_min)) != np.sign(math_function(endpoint_max))
     lower_x = endpoint_min
     higher_x = endpoint_max
 
@@ -54,8 +55,8 @@ def bisection_search(
         if (
             np.isclose(current_y_at_x, previous_val_at_x, atol=tolerance) or 
             np.isclose(current_y_at_x, 0, atol=tolerance) or 
-            np.isclose(current_x / 2, higher_x, tolerance))
-        :
+            np.isclose(current_x / 2, higher_x, tolerance)
+        ):
             break
 
         # If the sign at the lower point and the mid point are the same, 
@@ -71,7 +72,11 @@ def bisection_search(
 
 
 if __name__ == "__main__":
+    # The following line's y = 0 is at x=-1.5
     function = lambda x: 2 * x + 3
     assert np.isclose((bisection_search(math_function=function, endpoint_min=-20, endpoint_max=20)).x, -1.5, atol=1e-3)
 
+    # Minima should be at 2
     function = lambda x: x**2 - 4
+    print((bisection_search(math_function=function, endpoint_min=-20, endpoint_max=20)).x)
+    assert np.isclose((bisection_search(math_function=function, endpoint_min=-20, endpoint_max=20)).x, -2, atol=1e-3)
