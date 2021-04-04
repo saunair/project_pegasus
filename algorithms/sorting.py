@@ -1,12 +1,23 @@
 from copy import copy
 
 
-def bubble_sort(array):
-    memory_array = copy(array)
-    for n in range(len(memory_array)):
-        for m in range(len(memory_array)):
-            if memory_array[m] > memory_array[n]:
-                memory_array[m], memory_array[n] = memory_array[n], memory_array[m]
+def bubble_sort(array, in_array_sort=True):
+    if not in_array_sort:
+        memory_array = copy(array)
+    else:
+        memory_array = array
+
+    count = 0
+
+    while (len(memory_array) - count) > 0:
+        inner_index = 0
+        while inner_index < len(memory_array) - 1 - count :
+            if memory_array[inner_index] > memory_array[inner_index + 1]:
+                # Swap the values in place.
+                memory_array[inner_index + 1], memory_array[inner_index] = memory_array[inner_index], memory_array[inner_index + 1]
+            inner_index += 1
+        # Last element is the highest one, so the loop terminates earlier next time.
+        count += 1
     return memory_array
 
 
