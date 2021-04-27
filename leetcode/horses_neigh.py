@@ -1,25 +1,22 @@
 
 UNIT_STRING = "neigh"
 
-def _next_expected_char(current_count):
-    if current_count == len(UNIT_STRING):
-        idx = 0
-    else:
-        idx = current_count + 1
-    return UNIT_STRING[idx]
-
-
 def count_horses_from_string(recording: str) -> int:
+    """Count minimum number of string generators in the scene"""
     pool_of_horse_counts = [0] # assume there is atleast one horse
     char_list = list(UNIT_STRING)
     current_str_count = 0
 
-    def _update_pool_of_horses(pool_of_horse_counts, current_horse_index):
+    def _update_pool_of_horses(pool_of_horse_counts: List[int], current_horse_index: int):
+        """Update the expected index count of every word"""
         count = 0
+        # Go through every horse and update its count.
         while count < len(pool_of_horse_counts):
+            # If the horse count is zero no need to update, unless it is the current horse that is neighing.
             if pool_of_horse_counts[count] != 0 or (count == current_horse_index):
                 pool_of_horse_counts[count] += 1
 
+            # If the word has reached its end, we need to reset the char index count.
             if pool_of_horse_counts[count] == len(char_list):
                 # Resetting the count as the string is complete.
                 pool_of_horse_counts[count] = 0
@@ -31,10 +28,10 @@ def count_horses_from_string(recording: str) -> int:
         if current_char not in char_list:
             raise ValueError(f"Input recording contained an unknown character {current_char} which isn't from {UNIT_STRING}")
 
+        # Check if it is an interruption from the current word
         if current_char != UNIT_STRING[pool_of_horse_counts[current_horse_index]]:
-            # Unexpected char for current horse, should be first char!
             assert current_char == UNIT_STRING[0]
-            if 0 in pool_of_horse_counts:
+            if 0 in pool_of_horse_counts: # One of the horses in the list already neighed. So It is probably the same horse that has interrupted. 
                 current_horse_index = pool_of_horse_counts.index(0)
             else:
                 pool_of_horse_counts.append(0)
