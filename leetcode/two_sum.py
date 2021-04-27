@@ -18,11 +18,11 @@ def two_sum_hash_method(input_array, reqd_sum):
     bool: If the two sum exists
 
     """
-    two_sum_hash = {}
+    two_sum_hash = set()
     for number in input_array:
         if (reqd_sum - number) in two_sum_hash:
             return True
-        two_sum_hash[number] = reqd_sum - number 
+        two_sum_hash.add(number)
     return False
 
 

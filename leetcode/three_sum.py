@@ -28,10 +28,13 @@ def three_sum(number_list, required_sum):
                 return second_number, first_number, sum_to_satisfy - second_number
             hash_set.add(second_number)
             second_index += 1
-        first_number_index += 1
     return None, None, None
 
 
 if __name__ == "__main__":
     number_list = [1, 3, 10, -1]
-    print(three_sum(number_list, 3))
+    print(f"{three_sum(number_list, 3)} for sum: 3")
+    number_list = [1, 3, 10, -1]
+    print(f"{three_sum(number_list, 12)} for sum: 12")
+    number_list = [1, 3, 10, -1]
+    print(f"{three_sum(number_list, 14)} for sum: 14")
