@@ -1,2 +1,2 @@
 # project_pegasus
-coding practice track
+Random coding musings 
