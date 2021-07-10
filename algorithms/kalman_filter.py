@@ -75,6 +75,65 @@ def plot_the_data(
         size="pop", 
         range_x=[100,100000], range_y=[25,90]
     )
+    
+
+
+    
+def get_state_matrices_for_2d(dt):
+    """Predict state using the state space model. 
+    Here we assume a newtown's motion's model for a 2d rigid object"""
+    A = np.array([[1, dt],  # s2 = s1 + u*dt 
+                  [0, 1]])  # u = u
+    B = np.array(
+        [
+            0.5 * dt ** 2,  # s = 1/2 * a * dt**2
+            dt              # v = u + a * dt
+        ]
+    )
+    return A, B
+
+
+def get_ground_truth_measurements(num_measurements=100, dt=1e-2, initial_speed=0.0, initial_position=100):
+    """Get the ground truth states of the object.
+    
+    Args:
+        num_measurements: Number of total measurements done.
+        dt: Time difference between two consecutive measurements.
+        initial_speed: The starting velocity of the body.
+        initial_position: The starting position of the body.
+
+    Returns:
+        [(position, velocity)]
+    """
+    g = -9.81
+    states = []
+    A, B = get_state_matrices_for_2d(dt)
+    current_state = [initial_position, initial_speed]
+
+    while len(states) < num_measurements:
+        current_state = forward_kinetics(
+            current_position=current_state[0], 
+            current_velocity=current_state[1],
+            input_acceleration=g,
+            state_matrix=A, input_matrix=B
+        )
+        states.append(current_state)
+    return states
+
+
+def forward_kinetics(current_position, current_velocity, input_acceleration, state_matrix, input_matrix):
+    """Forward rollout of the state just based on the previous state and the action input
+    
+    Args:
+        current_position: 
+        current_velocity:
+        input_acceleration:
+        state_matrix: "A" 
+        input_matrix: "B" 
+    
+    """
+    current_state = np.array([current_position, current_velocity])
+    return state_matrix.dot(current_state) + input_matrix.dot(input_acceleration)
 
 
 def run_kalman_step(
@@ -87,33 +146,16 @@ def run_kalman_step(
     measurement_covariance=None
 ):
     # Variance
-    def get_state_matrices_for_2d(dt):
-        """Predict state using the state space model. 
-        Here we assume a newtown's motion's model for a 2d rigid object"""
-        A = np.array([[1, dt],  # s2 = s1 + u*dt 
-                      [0, 1]])  # u = u
-        B = np.array(
-            [
-                0.5 * dt ** 2,  # s = 1/2 * a * dt**2
-                dt              # v = u + a * dt
-            ]
-        )
-        return A, B
-
-    def _forward_kinetics(current_position, current_velocity, input_acceleration, A, B):
-        """Forward rollout of the state just based on the previous state and the action input"""
-        current_state = np.array([current_position, current_velocity])
-        return A.dot(current_state) + B.dot(input_acceleration)
 
     A, B = get_state_matrices_for_2d(dt)
 
     # Covariance after a forward rollout.
     P = np.diag(np.diag(A.dot(previous_state_covariance).dot(A.T)))
-    state_prediction_rollout = _forward_kinetics(
+    state_prediction_rollout = forward_kinetics(
         current_position=previous_state[0], 
         current_velocity=previous_state[1], 
         input_acceleration=input_acceleration, 
-        A=A, B=B
+        state_matrix=A, input_matrix=B
     )
 
     # If there is no measurement, just return the rollout state and the increased covariance.
@@ -175,6 +217,7 @@ def run_kalman_demo():
 
 
 if __name__ == "__main__":
+    ground_truth_states = get_ground_truth_measurements()
     estimated_states, estimation_covariances = run_kalman_demo()
     plot_the_data(estimated_states, estimation_covariances)
 
