@@ -79,12 +79,12 @@ def plot_the_data(
 
 def run_kalman_step(
     dt, 
-    measurement, 
     previous_state, 
     previous_state_covariance, 
     observation_matrix, 
     input_acceleration, 
-    measurement_covariance
+    measurement=None, 
+    measurement_covariance=None
 ):
     # Variance
     def get_state_matrices_for_2d(dt):
@@ -115,6 +115,12 @@ def run_kalman_step(
         input_acceleration=input_acceleration, 
         A=A, B=B
     )
+
+    # If there is no measurement, just return the rollout state and the increased covariance.
+    if measurement is None:
+        assert measurement_covariance is None, "measurement convariance cannot be None if measurement doesn't exist"
+        return state_prediction_rollout, P
+
     measurement_prediction = observation_matrix.dot(state_prediction_rollout) 
     # Finally something that looks right to me. I haven't done 
     measurement_prediction_covariance = observation_matrix.dot(P).dot(observation_matrix.T)
