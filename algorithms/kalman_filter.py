@@ -1,5 +1,6 @@
 import numpy as np
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import pandas as pd
 
 
@@ -93,7 +94,7 @@ def get_state_matrices_for_2d(dt):
     return A, B
 
 
-def get_ground_truth_measurements(num_measurements=100, dt=1e-2, initial_speed=0.0, initial_position=100):
+def get_ground_truth_measurements(num_measurements=1000, dt=1e-2, initial_speed=0.0, initial_position=100):
     """Get the ground truth states of the object.
     
     Args:
@@ -109,16 +110,28 @@ def get_ground_truth_measurements(num_measurements=100, dt=1e-2, initial_speed=0
     states = []
     A, B = get_state_matrices_for_2d(dt)
     current_state = [initial_position, initial_speed]
+    time = 0.0
 
     while len(states) < num_measurements:
+        states.append([current_state, time])
         current_state = forward_kinetics(
             current_position=current_state[0], 
             current_velocity=current_state[1],
             input_acceleration=g,
             state_matrix=A, input_matrix=B
         )
-        states.append(current_state)
+        time += dt
     return states
+
+
+def get_noisy_measurements(ground_truth_measurements, noise_level):
+    noisy_states = []
+    for ground_truth_measurement in ground_truth_measurements:
+        ground_truth_state, time = ground_truth_measurement
+        position_noise = np.random.normal(0, noise_level[0], 1)[0]
+        velocity_noise = np.random.normal(0, noise_level[1], 1)[0]
+        noisy_states.append([[position_noise + ground_truth_state[0], velocity_noise + ground_truth_state[1]], time])
+    return noisy_states
 
 
 def forward_kinetics(current_position, current_velocity, input_acceleration, state_matrix, input_matrix):
@@ -145,8 +158,6 @@ def run_kalman_step(
     measurement=None, 
     measurement_covariance=None
 ):
-    # Variance
-
     A, B = get_state_matrices_for_2d(dt)
 
     # Covariance after a forward rollout.
@@ -216,8 +227,23 @@ def run_kalman_demo():
     return estimated_states, estimation_covariances
 
 
+def plot_states(states_with_times):
+    positions = []
+    velocities = []
+    times = []
+    for data_num in range(len(states_with_times)):
+        positions.append(states_with_times[data_num][0][0])
+        velocities.append(states_with_times[data_num][0][1])
+        times.append(states_with_times[data_num][1])
+    fig = make_subplots(rows=1, cols=2, subplot_titles=("Position", "Velocity"))
+    fig.add_trace(go.Scatter(x=times, y=positions, mode='lines', showlegend=False), row=1, col=1)
+    fig.add_trace(go.Scatter(x=times, y=velocities, mode='lines', showlegend=False), row=1, col=2)
+    fig.update_layout(title_text="Ground truth body states")
+    fig.show()
+
+
 if __name__ == "__main__":
     ground_truth_states = get_ground_truth_measurements()
+    noisy_measurements = get_noisy_measurements(ground_truth_states, noise_level=[1.0, 0.5])
     estimated_states, estimation_covariances = run_kalman_demo()
-    plot_the_data(estimated_states, estimation_covariances)
 
