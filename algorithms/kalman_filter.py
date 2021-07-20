@@ -1,21 +1,12 @@
+import fire
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
 
 
-def get_state_matrices_for_2d(dt):
-    # Just the control matrices.
-    # dt must come from the sensor readings. 
-    A = np.array([[1, dt],
-                  [0, 1]])
-    B = np.array([[0.5 * dt ** 2],
-                  [dt]])
-
-    return A, B
-
-
 def covariance2d(sigma1, sigma2):
+    """The 2d covariance matrix of a bi variate distribution"""
     cov1_2 = sigma1 * sigma2
     cov2_1 = sigma2 * sigma1
     cov_matrix = np.array([[sigma1 ** 2, cov1_2],
@@ -97,6 +88,7 @@ def get_ground_truth_measurements(num_measurements=1000, dt=1e-2, initial_speed=
 
 
 def get_noisy_measurements(ground_truth_measurements, noise_level):
+    """Add noise to the measurements based on the noise-levels (variances in each dimension)"""
     noisy_states = []
     for ground_truth_measurement in ground_truth_measurements:
         ground_truth_state, time = ground_truth_measurement
@@ -108,7 +100,7 @@ def get_noisy_measurements(ground_truth_measurements, noise_level):
 
 
 def forward_kinetics(current_position, current_velocity, input_acceleration, state_matrix, input_matrix):
-    """Forward rollout of the state just based on the previous state and the action input
+    """Forward rollout of the state just based on the previous state and the action input.
     
     Args:
         current_position: 
@@ -131,6 +123,7 @@ def run_kalman_step(
     measurement=None, 
     measurement_covariance=None
 ):
+    """Run one kalman iteration over the time stamp and the measurement if available"""
     A, B = get_state_matrices_for_2d(dt)
 
     # Covariance after a forward rollout.
@@ -232,21 +225,27 @@ def plot_states(states_with_times, title_name):
     fig.show()
 
 
-if __name__ == "__main__":
+def main(
+    sigma_position_measurements=5.0, 
+    sigma_velocity_measurements=6.0, 
+    sigma_position_process=2.0, 
+    sigma_velocity_process=3.0
+):
+    """
+    Args:
+        Just setting the noise in sensors and process noise.
+    """
     ground_truth_states = get_ground_truth_measurements()
-
-    # Just setting the noise in sensors and process noise
-    sigma_position_measurements = 5.0
-    sigma_velocity_measurements = 6.0
-    sigma_position_process = 2.0
-    sigma_velocity_process = 3.0
-
     plot_states(ground_truth_states, title_name="Ground truth states")
+
+    # Add noise to the ground truth measurements using the user inputs  of `sigma_position_measurements=5.0,` and `sigma_velocity_measurements`
     noisy_measurements = get_noisy_measurements(
         ground_truth_states, 
         noise_level=[sigma_position_measurements, sigma_velocity_measurements]
     )
     plot_states(noisy_measurements, title_name="Measurements")
+
+    # Now run a kalman filter over the data as if the measurements were received in run time.
     estimated_states, estimation_covariances = run_kalman_demo(
         sigma_position_measurements=sigma_position_measurements, 
         sigma_velocity_measurements=sigma_velocity_measurements, 
@@ -256,3 +255,9 @@ if __name__ == "__main__":
     )
 
     plot_states(estimated_states, title_name="Predictions")
+
+
+if __name__ == "__main__":
+    fire.Fire(main)
+
+
