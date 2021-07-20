@@ -184,6 +184,8 @@ def run_kalman_demo(
     estimation_covariances = []
     previous_time = measurements[0][1]
     for measurement_number, measurement in enumerate(measurements):
+        # arbitrarily skipping a few measurements to show that the filter can still predict with them
+        # TODO: Move the skip numbers to a user input.
         if measurement_number > 10 and measurement_number < 200:
             measurement_passed = None
         else:
@@ -220,13 +222,17 @@ def plot_states(states_with_times, title_name):
         times.append(states_with_times[data_num][1])
     fig = make_subplots(rows=1, cols=2, subplot_titles=("Position", "Velocity"))
     fig.add_trace(go.Scatter(x=times, y=positions, mode='lines', showlegend=False), row=1, col=1)
+    fig.update_xaxes(title_text="Time in seconds", row=1, col=1)
+    fig.update_yaxes(title_text="Position in meters", row=1, col=1)
     fig.add_trace(go.Scatter(x=times, y=velocities, mode='lines', showlegend=False), row=1, col=2)
+    fig.update_xaxes(title_text="Time in seconds", row=1, col=2)
+    fig.update_yaxes(title_text="Velocity in m/s", row=1, col=2)
     fig.update_layout(title_text=title_name)
     fig.show()
 
 
 def main(
-    sigma_position_measurements=5.0, 
+    sigma_position_measurements=10.0, 
     sigma_velocity_measurements=6.0, 
     sigma_position_process=2.0, 
     sigma_velocity_process=3.0
@@ -254,7 +260,7 @@ def main(
         measurements=noisy_measurements
     )
 
-    plot_states(estimated_states, title_name="Predictions")
+    plot_states(estimated_states, title_name="Kalman Filter Predictions")
 
 
 if __name__ == "__main__":
