@@ -94,7 +94,8 @@ def get_noisy_measurements(ground_truth_measurements, noise_level):
         ground_truth_state, time = ground_truth_measurement
         covariance_matrix = covariance2d(noise_level[0], noise_level[1])
         noisy_state = np.random.multivariate_normal(ground_truth_state, covariance_matrix, 1)
-        noisy_states.append([noisy_state[0], time])
+        noisy_timestamp = np.random.normal(time, noise_level[2], 1)
+        noisy_states.append([noisy_state[0], noisy_timestamp[0]])
 
     return noisy_states
 
@@ -234,8 +235,10 @@ def plot_states(states_with_times, title_name):
 def main(
     sigma_position_measurements=10.0, 
     sigma_velocity_measurements=6.0, 
-    sigma_position_process=2.0, 
-    sigma_velocity_process=3.0
+    sigma_position_process=10.0, 
+    sigma_velocity_process=30.0,
+    timestamp_variation_noise=1e-3,
+    time_descretization=1e-2,
 ):
     """
     Args:
@@ -247,7 +250,7 @@ def main(
     # Add noise to the ground truth measurements using the user inputs  of `sigma_position_measurements=5.0,` and `sigma_velocity_measurements`
     noisy_measurements = get_noisy_measurements(
         ground_truth_states, 
-        noise_level=[sigma_position_measurements, sigma_velocity_measurements]
+        noise_level=[sigma_position_measurements, sigma_velocity_measurements, timestamp_variation_noise]
     )
     plot_states(noisy_measurements, title_name="Measurements")
 
