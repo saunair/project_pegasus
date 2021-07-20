@@ -23,34 +23,6 @@ def covariance2d(sigma1, sigma2):
     return np.diag(np.diag(cov_matrix))
 
 
-def get_motion_properties():
-    a = 2  # Acceleration
-    v = 280
-    dt = 1  # Difference in time
-
-    # Process / Estimation Errors
-    # Why is this constant? Shouldn't it vary constantly? 
-    error_est_x = 20
-    error_est_v = 5
-
-    return a, v, dt,  error_est_x, error_est_v
-
-
-def get_sensor_properties():
-    # Both are variances in each dimension of the sensor reading.
-    # Why is this constant? 
-    error_obs_x = 20
-    error_obs_v = 5
-    return error_obs_x, error_obs_v
-
-
-def get_sensor_measurements():
-    x_observations = np.array([4000, 4260, 4550, 4860, 5110])
-    v_observations = np.array([280, 282, 285, 286, 290])
-    sensor_readings = np.c_[x_observations, v_observations]
-    return sensor_readings 
-
-
 def plot_the_data(
     estimated_states, 
     estimation_covariances
@@ -128,9 +100,10 @@ def get_noisy_measurements(ground_truth_measurements, noise_level):
     noisy_states = []
     for ground_truth_measurement in ground_truth_measurements:
         ground_truth_state, time = ground_truth_measurement
-        position_noise = np.random.normal(0, noise_level[0], 1)[0]
-        velocity_noise = np.random.normal(0, noise_level[1], 1)[0]
-        noisy_states.append([[position_noise + ground_truth_state[0], velocity_noise + ground_truth_state[1]], time])
+        covariance_matrix = covariance2d(noise_level[0], noise_level[1])
+        noisy_state = np.random.multivariate_normal(ground_truth_state, covariance_matrix, 1)
+        noisy_states.append([noisy_state[0], time])
+
     return noisy_states
 
 
@@ -171,7 +144,6 @@ def run_kalman_step(
 
     # If there is no measurement, just return the rollout state and the increased covariance.
     if measurement is None:
-        assert measurement_covariance is None, "measurement convariance cannot be None if measurement doesn't exist"
         return state_prediction_rollout, P
 
     measurement_prediction = observation_matrix.dot(state_prediction_rollout) 
@@ -187,16 +159,18 @@ def run_kalman_step(
     return estimated_state, P
 
 
-def run_kalman_demo():
-    # sensor variances.
-    error_obs_x, error_obs_v = get_sensor_properties()
-
+def run_kalman_demo(
+    sigma_position_measurements, 
+    sigma_velocity_measurements, 
+    measurements, 
+    sigma_position_process, 
+    sigma_velocity_process,
+    input_acceleration=-9.81,
+):
+    """Run a single kalman step"""
     # So R remains the same for all the cycles??
-    measurement_covariance = covariance2d(error_obs_x, error_obs_v)
-
-    # We are assuming a constant acceleration for now as the data is a flight moving at a constant speed.
-    a, v, dt, error_est_x, error_est_v = get_motion_properties()
-    measurements = get_sensor_measurements()
+    # The covariance looks the same throught the cycles
+    measurement_covariance = covariance2d(sigma_position_measurements, sigma_velocity_measurements)
 
     # Observation * state gives us the variables visible 
     # Observation matrix is a direct pass? Reasonable for now. Let's assume a sensor will give this information.
@@ -205,29 +179,45 @@ def run_kalman_demo():
     
     # Initial covariance matrix.
     # Shouldn't position variance be a function of the state's velocity?
-    current_state_covariance = covariance2d(error_est_x, error_est_v)
-    current_state = [measurements[0][0], measurements[0][1]]
+    current_state_covariance = covariance2d(
+        sigma_position_process, 
+        sigma_velocity_process
+    )
+    current_state = measurements[0][0]
 
     # Now run through the sensor measurements.
     # Initial State Matrix
     estimated_states = []
     estimation_covariances = []
-    for measurement in measurements:
+    previous_time = measurements[0][1]
+    for measurement_number, measurement in enumerate(measurements):
+        if measurement_number > 10 and measurement_number < 200:
+            measurement_passed = None
+        else:
+            measurement_passed = measurement[0]
         current_state, current_state_covariance = run_kalman_step(
-            dt=dt, 
+            dt=measurement[1] -  previous_time, 
             previous_state=current_state, 
             previous_state_covariance=current_state_covariance, 
             observation_matrix=observation_matrix,
-            input_acceleration=a,
+            input_acceleration=input_acceleration,
             measurement_covariance=measurement_covariance,
-            measurement=measurement,
+            measurement=measurement_passed,
         )
-        estimated_states.append(current_state)
+        previous_time = measurement[1]
+        estimated_states.append([current_state, previous_time])
         estimation_covariances.append(current_state_covariance)
     return estimated_states, estimation_covariances
 
 
-def plot_states(states_with_times):
+def plot_states(states_with_times, title_name):
+    """A plotting utility to show the states of the body
+    
+    Args:
+        states_with_times: list of states with their corresponding time-stamps
+        title_name: The name of the plot.
+
+    """
     positions = []
     velocities = []
     times = []
@@ -238,12 +228,31 @@ def plot_states(states_with_times):
     fig = make_subplots(rows=1, cols=2, subplot_titles=("Position", "Velocity"))
     fig.add_trace(go.Scatter(x=times, y=positions, mode='lines', showlegend=False), row=1, col=1)
     fig.add_trace(go.Scatter(x=times, y=velocities, mode='lines', showlegend=False), row=1, col=2)
-    fig.update_layout(title_text="Ground truth body states")
+    fig.update_layout(title_text=title_name)
     fig.show()
 
 
 if __name__ == "__main__":
     ground_truth_states = get_ground_truth_measurements()
-    noisy_measurements = get_noisy_measurements(ground_truth_states, noise_level=[1.0, 0.5])
-    estimated_states, estimation_covariances = run_kalman_demo()
 
+    # Just setting the noise in sensors and process noise
+    sigma_position_measurements = 5.0
+    sigma_velocity_measurements = 6.0
+    sigma_position_process = 2.0
+    sigma_velocity_process = 3.0
+
+    plot_states(ground_truth_states, title_name="Ground truth states")
+    noisy_measurements = get_noisy_measurements(
+        ground_truth_states, 
+        noise_level=[sigma_position_measurements, sigma_velocity_measurements]
+    )
+    plot_states(noisy_measurements, title_name="Measurements")
+    estimated_states, estimation_covariances = run_kalman_demo(
+        sigma_position_measurements=sigma_position_measurements, 
+        sigma_velocity_measurements=sigma_velocity_measurements, 
+        sigma_position_process=sigma_position_process,
+        sigma_velocity_process=sigma_velocity_process,
+        measurements=noisy_measurements
+    )
+
+    plot_states(estimated_states, title_name="Predictions")
