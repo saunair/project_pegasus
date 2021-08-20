@@ -47,7 +47,7 @@ class Node:
         self.weight = weight
 
 
-def bound(node_u: Node, total_knapsack_weight: int, list_of_items: list) -> int:
+def bound(node_u: Node, total_knapsack_weight: int, item_value_pairs: list) -> int:
     # If the node's weight exceeds the capacity, return a zero value as (an early exit) solution.
     if node_u.weight >= total_knapsack_weight:
         return 0
@@ -56,13 +56,13 @@ def bound(node_u: Node, total_knapsack_weight: int, list_of_items: list) -> int:
     total_weight = node_u.weight
     item_number = node_u.level + 1
 
-    while item_number < len(list_of_items) and total_weight + list_of_items[item_number] <= total_knapsack_weight:
-        total_weight += list_of_items[item_number].weight
-        profit_bound += list_of_items[item_number].value
+    while item_number < len(item_value_pairs) and total_weight + item_value_pairs[item_number].weight <= total_knapsack_weight:
+        total_weight += item_value_pairs[item_number].weight
+        profit_bound += item_value_pairs[item_number].value
         item_number += 1
 
-    if item_number < n:
-        profit_bound += (total_knapsack_weight - total_weight) * list_of_items[item_number].ratio
+    if item_number < len(item_value_pairs):
+        profit_bound += (total_knapsack_weight - total_weight) * item_value_pairs[item_number].ratio
 
     return profit_bound
 
@@ -72,49 +72,49 @@ def knapsack_bb(total_knapsack_weight: int, item_value_pairs: list):
     def _item_ratio(item):
         return item.ratio
 
-    item_value_pairs = [Item(weight=weight, value=value) for weight, value in item_value_pairs]
-    list_of_items.sort(key=_item_ratio, reverse=True)
+    item_value_pairs.sort(key=_item_ratio, reverse=True)
+    print(item_value_pairs)
 
     current_queue = []
     u, v = Node(level=-1, profit=0, weight=0), Node(level=-1, profit=0, weight=0)
+    current_queue.append(u)
     max_profit = 0
 
     while len(current_queue) > 0:
         u = current_queue.pop(-1)
         if u.level == -1:
             v.level = 0
-
-        if u.level == len(list_of_items) -1:
+        
+        # This condition? 
+        if u.level == len(item_value_pairs) - 1:
             continue
 
         v.level = u.level + 1
-        v.weight = u.weight + list_of_items[v.level].weight;
-        v.profit = u.profit + list_of_items[v.level].value;
+        v.weight = u.weight + item_value_pairs[v.level].weight;
+        v.profit = u.profit + item_value_pairs[v.level].value;
 
         # If cumulated weight is less than W and profit is greater than previous profit, update max_profit.
         if v.weight <= total_knapsack_weight and v.profit > max_profit:
             max_profit = v.profit
 
-        v.bound = bound(v, total_knapsack_weight, list_of_items)
+        v.bound = bound(v, total_knapsack_weight, item_value_pairs)
         if v.bound > max_profit:
             current_queue.append(v)
 
         # Do the same thing, but without taking the item in knapsack.
         v.weight = u.weight;
         v.profit = u.profit;
-        v.bound = bound(v, total_knapsack_weight, list_of_items);
-        if v.bound > maxProfit:
+        v.bound = bound(v, total_knapsack_weight, item_value_pairs);
+        if v.bound > max_profit:
             current_queue.append(v)
 
     return max_profit
 
 
 if __name__ == "__main__":
-    item_values = [60, 100, 120, 2]
-    wt = [10, 20, 29, 1]
-    W = 50
-    list_of_items = []
+    W = 95
     item_value_pairs = [(2, 40), (3.14, 50), (1.98, 100), (5, 95), (3, 30)]
+    item_value_pairs = [Item(weight=weight, value=value) for value, weight in item_value_pairs]
     print(
         knapsack_bb(
             total_knapsack_weight=W, 
