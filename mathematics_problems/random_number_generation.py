@@ -10,7 +10,9 @@ def random_integer_list(
     slope : int = 11,
     y_intercept : int = 13,
 ) -> list:
-    """Random number generation using linear congruential generation
+    """Random number generation using linear congruential generation.
+    Check out the following link for more information: 
+        https://en.wikipedia.org/wiki/Linear_congruential_generator
     
     Args:
         lowest_number: The lower-bound on the value of the random number.
