@@ -1,6 +1,11 @@
 from copy import copy
 
 import numpy as np
+from fire import Fire
+import plotly.express as px
+from plotly.subplots import make_subplots
+import pandas as pd
+import plotly.graph_objects as go
 
 
 def spread_fire_for_location(
@@ -52,8 +57,6 @@ def spread_fire_for_location(
             fire_grid[current_x][current_y] = elevation_diff == differential if is_child else (
                 np.abs(elevation_diff) <= np.abs(differential)
             )
-            if current_x == 5 and current_y == 5:
-                print(elevation_diff, differential, elevation_grid[location_x][location_y], elevation_grid[current_x][current_y])
             # Now spread fire for the child location with the expected monotonic increment/decrement.
             if fire_grid[current_x][current_y]:
                 spread_fire_for_location(
@@ -98,9 +101,10 @@ def update_fire_grid(
     return updated_fire_grid
 
 
-def get_fake_elevation_grid():
+def get_fake_elevation_grid(axis_len: int = 20) -> np.ndarray:
+    """An elevation grid that can be used for testing purposes."""
     # Setting a fake elevation. 
-    elevation_grid = np.zeros((10, 10)) + 3
+    elevation_grid = np.zeros((axis_len, axis_len)) + 3
 
     elevation_grid[4, 4] = 4 # Monotonically increasing
     elevation_grid[5, 5] = 6
@@ -110,24 +114,60 @@ def get_fake_elevation_grid():
     return elevation_grid
 
 
-def run_grow_example(timesteps=3):
+def get_mountain_grid(
+    axis_len: int = 20
+) -> np.ndarray:
+    """Setting a gaussian line elevation"""
+    elevation_grid = np.zeros((axis_len, axis_len))
+    for i in range(axis_len):
+        for j in range(axis_len):
+            elevation_grid[i, j] = np.sqrt((axis_len)**2 - (axis_len/2 - i)**2 - (axis_len/ 2 - j)**2)
+    
+    # Just to add some discontinuous gradient.
+    elevation_grid[int(0.8*axis_len), :] = np.max(elevation_grid) 
+
+    return elevation_grid
+
+
+def run_grow_example(
+    timesteps: int =10, 
+    axis_len: int = 20, 
+    is_test: bool = True, 
+    plot: bool = False
+):
     """Demo example of fire spreading through a terrain"""
-    current_fire_grid = np.zeros((10, 10))
+    current_fire_grid = np.zeros((axis_len, axis_len))
     current_fire_grid[4, 4] = 1
 
     # Just binarizing the array.
     current_fire_grid = current_fire_grid > 0.5
-    elevation_grid = get_fake_elevation_grid()
+
+    if is_test:
+        elevation_grid = get_fake_elevation_grid(axis_len)
+    else:
+        elevation_grid = get_mountain_grid(axis_len)
+
+    elevation_graph = go.Heatmap(z=elevation_grid.tolist())
+    fig = go.Figure(data=elevation_graph)
+    fig.update_layout( title="elevation map")
+    fig.show()
 
     for timestep in range(timesteps):
+        fig = go.Figure(go.Heatmap(z=(current_fire_grid * 1.0).tolist()))
+        fig.update_layout(title=f"Fire at timestep {timestep}")
+        fig.show()
         current_fire_grid = update_fire_grid(current_fire_grid, elevation_grid)
-        assert current_fire_grid[5, 8] == False
-        if timestep == 0:
-            assert current_fire_grid[5, 6] == False
-        else:
-            assert current_fire_grid[5, 6] == True
-        print(current_fire_grid)
+        if is_test:
+            assert current_fire_grid[5, 8] == False
+            if timestep == 0:
+                assert current_fire_grid[5, 6] == False
+            else:
+                assert current_fire_grid[5, 6] == True
+    
+    fig = go.Figure(go.Heatmap(z=(current_fire_grid * 1.0).tolist()))
+    fig.show()
+
 
 
 if __name__ == "__main__":
-    run_grow_example()
+    Fire(run_grow_example)
