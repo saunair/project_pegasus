@@ -130,9 +130,9 @@ def get_mountain_grid(
 
 
 def run_grow_example(
-    timesteps: int =10, 
+    timesteps: int =5, 
     axis_len: int = 20, 
-    is_test: bool = True, 
+    is_test: bool = False, 
     plot: bool = False
 ):
     """Demo example of fire spreading through a terrain"""
@@ -157,6 +157,7 @@ def run_grow_example(
         fig.update_layout(title=f"Fire at timestep {timestep}")
         fig.show()
         current_fire_grid = update_fire_grid(current_fire_grid, elevation_grid)
+        # Just some test cases to verify.
         if is_test:
             assert current_fire_grid[5, 8] == False
             if timestep == 0:
