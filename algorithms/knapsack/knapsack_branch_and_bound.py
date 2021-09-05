@@ -1,5 +1,6 @@
 """Knapsack solution using the branch and bound method."""
 
+
 class Item:
     """Representation of one item from the total set of objects that can be chosen."""
     def __init__(self, weight: int, value: int):
@@ -18,14 +19,6 @@ class Item:
     def weight(self):
         return self.__weight
     
-    #@weight.setter
-    #def weight(self, w):
-    #    self.__weight = w
-
-    #@value.setter
-    #def value(self, v):
-    #    self.__value = v
-
     @property
     def ratio(self):
         return self.value / self.weight
@@ -73,7 +66,6 @@ def knapsack_bb(total_knapsack_weight: int, item_value_pairs: list):
         return item.ratio
 
     item_value_pairs.sort(key=_item_ratio, reverse=True)
-    print(item_value_pairs)
 
     current_queue = []
     u, v = Node(level=-1, profit=0, weight=0), Node(level=-1, profit=0, weight=0)
