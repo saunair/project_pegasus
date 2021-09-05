@@ -4,7 +4,6 @@ import numpy as np
 from fire import Fire
 import plotly.express as px
 from plotly.subplots import make_subplots
-import pandas as pd
 import plotly.graph_objects as go
 
 
