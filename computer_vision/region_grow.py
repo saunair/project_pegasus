@@ -47,7 +47,6 @@ def spread_fire_for_location(
             # If already lit, we don't have to set it or explore it.
             if fire_grid[current_x][current_y]:
                 continue
-            
 
             # Compute the elevation difference with the original location.
             elevation_diff = elevation_grid[location_x][location_y] - elevation_grid[current_x][current_y]
@@ -100,10 +99,23 @@ def update_fire_grid(
     return updated_fire_grid
 
 
-def get_fake_elevation_grid(axis_len: int = 20) -> np.ndarray:
-    """An elevation grid that can be used for testing purposes."""
+def get_fake_elevation_grid(
+    num_rows: int = 20,
+    num_columns: int = 20,
+) -> np.ndarray:
+    """An elevation grid that can be used for testing purposes.
+    
+    Args:
+        num_rows:
+        num_columns:
+
+    Returns:
+        An elevation grid that has some monotonically 
+        increasing and discontinuous terrain that will not let fire spread.
+    
+    """
     # Setting a fake elevation. 
-    elevation_grid = np.zeros((axis_len, axis_len)) + 3
+    elevation_grid = np.zeros((num_rows, num_columns)) + 3
 
     elevation_grid[4, 4] = 4 # Monotonically increasing
     elevation_grid[5, 5] = 6
@@ -114,37 +126,67 @@ def get_fake_elevation_grid(axis_len: int = 20) -> np.ndarray:
 
 
 def get_mountain_grid(
-    axis_len: int = 20
+    num_rows: int = 20,
+    num_columns: int = 20,
+    add_discontinuity: bool = True,
 ) -> np.ndarray:
-    """Setting a gaussian line elevation"""
-    elevation_grid = np.zeros((axis_len, axis_len))
-    for i in range(axis_len):
-        for j in range(axis_len):
-            elevation_grid[i, j] = np.sqrt((axis_len)**2 - (axis_len/2 - i)**2 - (axis_len/ 2 - j)**2)
+    """Setting a gaussian line elevation.
+    
+    Args:
+        num_rows: 
+        num_columns:
+
+    Returns:
+        A two dimensional grid that emulates the elevatino of a mountain/hilly area.
+    
+    """
+    elevation_grid = np.zeros((num_rows, num_columns))
+    for row in range(num_rows):
+        for column in range(num_columns):
+            elevation_grid[row, column] = np.sqrt((num_rows)**2 - (num_rows/2 - row)**2 - (num_columns/ 2 - column)**2)
     
     # Just to add some discontinuous gradient.
-    elevation_grid[int(0.8*axis_len), :] = np.max(elevation_grid) 
+    if add_discontinuity:
+        elevation_grid[int(0.8*num_rows), :] = np.max(elevation_grid) 
 
     return elevation_grid
 
 
 def run_grow_example(
     timesteps: int =5, 
-    axis_len: int = 20, 
+    num_rows: int = 20, 
+    num_columns: int = 20, 
     is_test: bool = False, 
     plot: bool = False
-):
-    """Demo example of fire spreading through a terrain"""
-    current_fire_grid = np.zeros((axis_len, axis_len))
+) -> None:
+    """Demo example of fire spreading through a terrain.
+    
+    Args:
+        timesteps: Number of time steps we are running this simulation over.
+            Each timestep is a single unit of time. There is no concept of unit of time here. 
+        num_rows: Number of rows in the grid
+        num_columns: Number of columns in the grid
+        is_test: True if we are running it over a fake elevation for testing purposes.
+            False if this is running on a gaussian like elevation grid.
+        plot: True if the output and the grid needs to be plotted.
+    
+    """
+    current_fire_grid = np.zeros((num_rows, num_columns))
     current_fire_grid[4, 4] = 1
 
     # Just binarizing the array.
     current_fire_grid = current_fire_grid > 0.5
 
     if is_test:
-        elevation_grid = get_fake_elevation_grid(axis_len)
+        elevation_grid = get_fake_elevation_grid(
+            num_rows=num_rows, 
+            num_columns=num_columns
+        )
     else:
-        elevation_grid = get_mountain_grid(axis_len)
+        elevation_grid = get_mountain_grid(
+            num_rows=num_rows, 
+            num_columns=num_columns
+        )
 
     elevation_graph = go.Heatmap(z=elevation_grid.tolist())
     fig = go.Figure(data=elevation_graph)
@@ -166,7 +208,6 @@ def run_grow_example(
     
     fig = go.Figure(go.Heatmap(z=(current_fire_grid * 1.0).tolist()))
     fig.show()
-
 
 
 if __name__ == "__main__":
