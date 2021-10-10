@@ -72,7 +72,7 @@ def spread_fire_for_location(
 def update_fire_grid(
     current_fire_grid: np.ndarray, 
     elevation_grid: np.ndarray, 
-    allowed_difference: int=2
+    allowed_difference: int = 2
 ) -> np.ndarray:
     """Update the fire grid for one time-step
     
@@ -152,8 +152,22 @@ def get_mountain_grid(
     return elevation_grid
 
 
+def get_initial_ignition(
+    ignition_location_x: int = 4, 
+    ignition_location_y: int = 4,
+    num_rows: int = 20,
+    num_columns: int = 20,
+):
+    current_fire_grid = np.zeros((num_rows, num_columns))
+    current_fire_grid[ignition_location_x, ignition_location_y] = 1
+
+    # Just binarizing the array.
+    current_fire_grid = current_fire_grid > 0.5
+    return current_fire_grid
+
+
 def run_grow_example(
-    timesteps: int =5, 
+    timesteps: int = 5, 
     num_rows: int = 20, 
     num_columns: int = 20, 
     is_test: bool = False, 
@@ -171,12 +185,6 @@ def run_grow_example(
         plot: True if the output and the grid needs to be plotted.
     
     """
-    current_fire_grid = np.zeros((num_rows, num_columns))
-    current_fire_grid[4, 4] = 1
-
-    # Just binarizing the array.
-    current_fire_grid = current_fire_grid > 0.5
-
     if is_test:
         elevation_grid = get_fake_elevation_grid(
             num_rows=num_rows, 
@@ -192,6 +200,13 @@ def run_grow_example(
     fig = go.Figure(data=elevation_graph)
     fig.update_layout( title="elevation map")
     fig.show()
+
+    current_fire_grid = get_initial_ignition(
+        ignition_location_x=4,
+        ignition_location_y=4,
+        num_rows=num_rows, 
+        num_columns=num_columns,
+    )
 
     for timestep in range(timesteps):
         fig = go.Figure(go.Heatmap(z=(current_fire_grid * 1.0).tolist()))
