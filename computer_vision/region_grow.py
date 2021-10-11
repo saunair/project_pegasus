@@ -1,6 +1,7 @@
 from copy import copy
 
 import numpy as np
+import pandas as pd
 from fire import Fire
 import plotly.express as px
 from plotly.subplots import make_subplots
@@ -167,11 +168,11 @@ def get_initial_ignition(
 
 
 def run_grow_example(
-    timesteps: int = 5, 
+    timesteps: int = 20, 
     num_rows: int = 20, 
     num_columns: int = 20, 
     is_test: bool = False, 
-    plot: bool = False
+    plot: bool = True
 ) -> None:
     """Demo example of fire spreading through a terrain.
     
@@ -196,10 +197,6 @@ def run_grow_example(
             num_columns=num_columns
         )
 
-    elevation_graph = go.Heatmap(z=elevation_grid.tolist())
-    fig = go.Figure(data=elevation_graph)
-    fig.update_layout( title="elevation map")
-    fig.show()
 
     current_fire_grid = get_initial_ignition(
         ignition_location_x=4,
@@ -207,11 +204,14 @@ def run_grow_example(
         num_rows=num_rows, 
         num_columns=num_columns,
     )
+    fire_at_times = []
+    all_timesteps = []
 
     for timestep in range(timesteps):
-        fig = go.Figure(go.Heatmap(z=(current_fire_grid * 1.0).tolist()))
-        fig.update_layout(title=f"Fire at timestep {timestep}")
-        fig.show()
+        all_timesteps.append(timestep)
+        fire_at_times.append((current_fire_grid * 1.0).tolist())
+        #fig = go.Figure(go.Heatmap(z=(current_fire_grid * 1.0).tolist()))
+        #fig.update_layout(title=f"Fire at timestep {timestep}")
         current_fire_grid = update_fire_grid(current_fire_grid, elevation_grid)
         # Just some test cases to verify.
         if is_test:
@@ -221,8 +221,40 @@ def run_grow_example(
             else:
                 assert current_fire_grid[5, 6] == True
     
-    fig = go.Figure(go.Heatmap(z=(current_fire_grid * 1.0).tolist()))
-    fig.show()
+    all_timesteps.append(timestep + 1)
+    fire_at_times.append((current_fire_grid * 1.0).tolist())
+
+    # Cannot do the following unfortunately. Only bar plots and scatter are supported.
+    # dataframe = pd.DataFrame.from_dict({"timestep": all_timesteps, "fires": fire_at_times})
+    #fire_animation = px.imshow(dataframe, animation_group="fires", animation_frame="timestep")
+    #fire_animation.show()
+    # Create figure
+    if plot:
+        elevation_graph = go.Heatmap(z=elevation_grid.tolist())
+        all_fig = make_subplots(rows=2, cols=1)
+        all_fig.add_trace(
+            elevation_graph,
+            row=1, col=1,
+        )
+        all_fig.add_trace(
+            go.Heatmap(z=fire_at_times[0]),
+            row=2, col=1,
+        )
+        frames = [
+            go.Frame(data=go.Heatmap(z=fire_grid), traces=[1]) for fire_grid in fire_at_times
+        ]
+        all_fig.frames = frames
+        all_fig.layout = go.Layout(
+            xaxis=dict(range=[0, num_rows], autorange=False),
+            yaxis=dict(range=[0, num_columns], autorange=False),
+            title="Fire growth in time",
+            updatemenus=[dict(
+                type="buttons",
+                buttons=[dict(label="Play",
+                              method="animate",
+                              args=[None])])]
+        )
+        all_fig.show()
 
 
 if __name__ == "__main__":
