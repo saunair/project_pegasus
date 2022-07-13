@@ -32,6 +32,7 @@ vector<vector<int>> update_matrix(vector<vector<int>>& matrix){
             }
             if(distances[row][column] > distances[root_row][root_column] + 1){
                 distances[row][column] = distances[root_row][root_column] + 1;
+                // A new direction to be explored as distances have changed for row, column;
                 zero_queue.push({row, column});
             }
         }
