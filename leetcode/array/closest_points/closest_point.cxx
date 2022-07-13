@@ -4,6 +4,7 @@
 #include <algorithm>
 #include<cctype>
 #include<climits>
+#include<cfloat>
 
 using namespace std;
 
@@ -32,7 +33,7 @@ ostream &operator<<(ostream &os, Point const &m) {
 
 vector<Point> k_closest_points(vector<Point> all_points, Point point, int k){
    int num_points = all_points.size();
-   vector<int> distances(num_points, -1);
+   vector<float> distances(num_points, -FLT_MAX);
    int point_count = 0;
    for(auto it:all_points){
        distances[point_count] = sqrt((point.x - it.x)*(point.x - it.x) + (point.y - it.y)*(point.y - it.y));
@@ -49,7 +50,6 @@ vector<Point> k_closest_points(vector<Point> all_points, Point point, int k){
        //Remove the point entries associated to these.
        distances.erase(it_max);
        all_points.erase(all_points.begin() + index_num);
-       cout<<k_points[k - k_count]<<"out"<<index_num - k<<endl;
    }
    return k_points;
 }
